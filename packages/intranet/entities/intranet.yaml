@@ -1,0 +1,72 @@
+- name: SpaceMember
+  label: Member
+  kind: child
+  fields:
+    - {name: user_email, type: email, required: true, in_list: true, label: Email}
+    - {name: member_role, type: select, options: [Member, Editor], default: Member, required: true, in_list: true, label: Role}
+
+- name: SpaceLink
+  label: Link
+  kind: child
+  fields:
+    - {name: label, type: data, required: true, in_list: true, max_length: 140}
+    - {name: url, type: data, required: true, in_list: true, max_length: 2000, label: Address, description: "A web address (https://…) or a page of this workspace (/docs/…)"}
+
+- name: IntranetSpace
+  label: Space
+  label_plural: Spaces
+  kind: master
+  module: intranet
+  title_field: space_name
+  description: "A team's or a topic's place: who is in it, its pages (a Drive folder, written in Docs) and its links. A members-only space, and what is announced in it, is seen by its owner and members."
+  owner_fields: [owner, members.user_email]
+  fields:
+    - {name: space_name, type: data, required: true, unique: true, in_list: true, label: Name, max_length: 140}
+    - {name: description, type: text, max_length: 2000}
+    - {name: visibility, type: select, options: [Everyone, Members], default: Everyone, required: true, in_list: true, in_filter: true}
+    - {name: owner, type: email, in_list: true, description: "Who keeps the space; whoever made it unless given"}
+    - {name: pages_folder, type: data, max_length: 36, label: Pages Folder, description: "A Drive folder's id: the space's pages, written in Docs"}
+    - {name: members, type: table, of: SpaceMember}
+    - {name: links, type: table, of: SpaceLink}
+    - {name: active, type: check, default: true, in_list: true, in_filter: true}
+  list: {columns: [space_name, visibility, owner, active], sort: space_name asc}
+
+- name: AnnouncementRecipient
+  label: Recipient
+  kind: child
+  fields:
+    - {name: user_email, type: email, required: true, in_list: true, label: Email}
+
+- name: AnnouncementAck
+  label: Acknowledgement
+  kind: child
+  fields:
+    - {name: user_email, type: email, required: true, in_list: true, label: Email}
+    - {name: acknowledged_at, type: datetime, required: true, in_list: true}
+
+- name: Announcement
+  label: Announcement
+  label_plural: Announcements
+  kind: master
+  module: intranet
+  title_field: title
+  description: "News for everyone, or for a space's members. Published, it stays as it was posted, and those it asks acknowledge it once; archived after the day it expires."
+  owner_fields: [recipients.user_email]
+  fields:
+    - {name: title, type: data, required: true, in_list: true, max_length: 200}
+    - {name: body, type: markdown, required: true, max_length: 50000}
+    - {name: space, type: link, to: IntranetSpace, in_list: true, in_filter: true, description: "Empty: for everyone"}
+    - {name: audience, type: select, options: [Everyone, Space members], default: Everyone, read_only: true, in_list: true, in_filter: true, description: "Set from its space when it is published"}
+    - {name: status, type: select, options: [Draft, Published, Archived], default: Draft, read_only: true, in_list: true, in_filter: true}
+    - {name: pinned, type: check, in_list: true, description: "Shown first while it is published"}
+    - {name: needs_acknowledgement, type: check, label: Ask to Acknowledge}
+    - {name: expires_on, type: date, in_list: true, description: "Archived after this day"}
+    - {name: published_by, type: email, read_only: true, no_copy: true}
+    - {name: published_at, type: datetime, read_only: true, no_copy: true, in_list: true}
+    - {name: recipients, type: table, of: AnnouncementRecipient, read_only: true, no_copy: true, description: "Who a members-only space's announcement was published to"}
+    - {name: acknowledgements, type: table, of: AnnouncementAck, read_only: true, no_copy: true}
+  list: {columns: [title, space, audience, status, pinned, published_at], sort: published_at desc}
+  actions:
+    - {name: publish, label: Publish, permission: write, condition: "doc.status == 'Draft'", confirm: "Publish this announcement? Once published it stays as it is."}
+    - {name: archive, label: Archive, permission: write, condition: "doc.status == 'Published'"}
+    - {name: acknowledge, label: Acknowledge, permission: read, condition: "doc.status == 'Published' && doc.needs_acknowledgement"}

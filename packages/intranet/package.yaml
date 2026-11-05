@@ -1,0 +1,28 @@
+package: intranet
+version: 0.1.0
+label: Intranet
+description: "Spaces for teams with their pages and links, and announcements to everyone or a space's members, acknowledged where asked"
+depends: [core]
+
+modules:
+  - name: intranet
+    label: Intranet
+    icon: bell
+    order: 58
+    items: [Announcement, IntranetSpace]
+
+roles:
+  - name: Intranet Editor
+    description: Writes, publishes and archives announcements, and keeps the spaces.
+    permissions:
+      - {entity: Announcement, read: true, write: true, create: true, delete: true, export: true}
+      - {entity: IntranetSpace, read: true, write: true, create: true, delete: true, export: true}
+  - name: Intranet Member
+    description: Reads the announcements meant for them and the spaces they may see, and acknowledges announcements that ask.
+    permissions:
+      # Everyone's announcements, and a members-only space's to those it was published to.
+      - {entity: Announcement, read: true, where: {status: Published, audience: Everyone}}
+      - {entity: Announcement, read: true, if_owner: true, where: {status: Published}}
+      # Spaces open to everyone, and members-only ones to their owner and members.
+      - {entity: IntranetSpace, read: true, where: {visibility: Everyone}}
+      - {entity: IntranetSpace, read: true, if_owner: true}

@@ -48,6 +48,12 @@ Who sees what:
 - **Pages:** these are Docs documents in the space's Drive folder. Sharing that folder is Drive's job, not the space's.
 - **Directory:** there is no people directory here. HR's employees are the directory.
 
+## Changelog
+
+| Version | Highlights |
+|---|---|
+| **0.1.0** | Team spaces with their pages and links, and announcements to everyone or a team, acknowledged where asked. |
+
 ## Develop
 
 ```bash

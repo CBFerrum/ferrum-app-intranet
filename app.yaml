@@ -1,0 +1,30 @@
+id: intranet
+name: Intranet
+version: 0.1.0
+publisher: cbferrum
+summary: "Spaces for teams with their pages and links, and announcements to everyone or a space's members, acknowledged where asked"
+description: README.md
+categories: [productivity]
+license: AGPL-3.0-only
+homepage: https://github.com/CBFerrum/ferrum-app-intranet
+support: https://github.com/CBFerrum/ferrum-app-intranet/issues
+runtime: native
+platform: ">=0.3.2, <0.4"
+packages: [intranet]
+uninstall: ask
+# Its own interface at /intranet/: the news meant for the reader, and the spaces they may see.
+ui:
+  dist: ui/dist
+contributes:
+  shell.app:
+    - id: intranet
+      route: intranet
+      title: Intranet
+      description: News for everyone or a team, and the teams' spaces
+      icon: megaphone
+      color: "#7c3aed"
+      roles: [Intranet Editor, Intranet Member]
+  shell.open:
+    - {id: intranet, package: intranet, path: "intranet/e/{entity}/{id}", list: "intranet/e/{entity}"}
+  shell.create:
+    - {id: announcement, label: Announcement, path: intranet/e/Announcement/new, entity: Announcement}

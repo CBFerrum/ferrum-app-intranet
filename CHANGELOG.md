@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4
+
+Rebuilt with Ferrum-Frontend a76295e: its pages show times on a person's own clock when they chose one on their Account page, while today and due dates stay on the workspace's day.
+
 ## 0.1.3
 
 - The news shows the day an announcement was published on the workspace's clock, as members read

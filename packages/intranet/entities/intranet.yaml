@@ -53,13 +53,13 @@
   description: "News for everyone, or for a space's members. Published, it stays as it was posted, and those it asks acknowledge it once; archived after the day it expires."
   owner_fields: [recipients.user_email]
   fields:
-    - {name: title, type: data, required: true, in_list: true, max_length: 200}
-    - {name: body, type: markdown, required: true, max_length: 50000}
-    - {name: space, type: link, to: IntranetSpace, in_list: true, in_filter: true, description: "Empty: for everyone"}
+    - {name: title, type: data, required: true, in_list: true, max_length: 200, read_only_if: "doc.status == 'Published' || doc.status == 'Archived'"}
+    - {name: body, type: markdown, required: true, max_length: 50000, read_only_if: "doc.status == 'Published' || doc.status == 'Archived'"}
+    - {name: space, type: link, to: IntranetSpace, in_list: true, in_filter: true, description: "Empty: for everyone", read_only_if: "doc.status == 'Published' || doc.status == 'Archived'"}
     - {name: audience, type: select, options: [Everyone, Space members], default: Everyone, read_only: true, in_list: true, in_filter: true, description: "Set from its space when it is published"}
     - {name: status, type: select, options: [Draft, Published, Archived], default: Draft, read_only: true, in_list: true, in_filter: true}
     - {name: pinned, type: check, in_list: true, description: "Shown first while it is published"}
-    - {name: needs_acknowledgement, type: check, label: Ask to Acknowledge}
+    - {name: needs_acknowledgement, type: check, label: Ask to Acknowledge, read_only_if: "doc.status == 'Published' || doc.status == 'Archived'"}
     - {name: expires_on, type: date, in_list: true, description: "Archived after this day"}
     - {name: published_by, type: email, read_only: true, no_copy: true}
     - {name: published_at, type: datetime, read_only: true, no_copy: true, in_list: true}
@@ -68,5 +68,5 @@
   list: {columns: [title, space, audience, status, pinned, published_at], sort: published_at desc}
   actions:
     - {name: publish, label: Publish, permission: write, condition: "doc.status == 'Draft'", confirm: "Publish this announcement? Once published it stays as it is."}
-    - {name: archive, label: Archive, permission: write, condition: "doc.status == 'Published'"}
+    - {name: archive, label: Archive, permission: write, condition: "doc.status == 'Published'", confirm: "Archive this announcement? It leaves the news, and is not published again."}
     - {name: acknowledge, label: Acknowledge, permission: read, condition: "doc.status == 'Published' && doc.needs_acknowledgement"}

@@ -18,6 +18,12 @@ export function owes(a: Row, email: string): boolean {
   return !acks.some((r) => r.user_email?.toLowerCase() === email.toLowerCase());
 }
 
+/** When `email` acknowledged an announcement, if they did. */
+export function acknowledgedAt(a: Row, email: string): string | undefined {
+  const acks = Array.isArray(a.acknowledgements) ? (a.acknowledgements as { user_email?: string; acknowledged_at?: string }[]) : [];
+  return email ? acks.find((r) => r.user_email?.toLowerCase() === email.toLowerCase())?.acknowledged_at : undefined;
+}
+
 /** A web address or a page of this workspace, never a script or another site by `//`. */
 export function linkOk(url: string): boolean {
   return !!url && !/[\s\p{Cc}]/u.test(url) && (url.startsWith("https://") || url.startsWith("http://") || (url.startsWith("/") && !url.startsWith("//")));

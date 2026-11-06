@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.2
+
+From a browser walk on a running server (announcements to everyone and to a members-only space,
+published, acknowledged by a member, and archived):
+
+- A published or archived announcement's title, body, space and Ask to Acknowledge show read-only
+  on its page. Before, they looked editable until saving was refused.
+- Archive asks first, since an archived announcement is not published again.
+- The news says when you acknowledged an announcement that asked, in place of the button.
+
 ## 0.1.1
 
 Rebuilt with Ferrum-Frontend bb60115: a record page reads an empty number or check as the server does, so an action whose condition needs one shows, and a workspace's settings open as their one record.

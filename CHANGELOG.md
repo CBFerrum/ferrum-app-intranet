@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3
+
+- The news shows the day an announcement was published on the workspace's clock, as members read
+  times, rather than the browser's.
+- Rebuilt with Ferrum-Frontend 24c3951: times on the workspace's clock.
+
 ## 0.1.2
 
 From a browser walk on a running server (announcements to everyone and to a members-only space,

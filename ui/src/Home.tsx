@@ -5,7 +5,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "react-router";
-import { api, docPath } from "@ferrum/client";
+import { api, docPath, formatMoment } from "@ferrum/client";
 import { Badge, Button, ErrorState, Markdown, PageLoading, toast, useShellTitle } from "@ferrum/kit";
 import { useMe } from "@ferrum/records";
 import { acknowledgedAt, feed, linkOk, owes, type Row } from "./feed";
@@ -13,7 +13,8 @@ import { acknowledgedAt, feed, linkOk, owes, type Row } from "./feed";
 const list = (entity: string, filters: unknown[], fields: string) =>
   api.get<{ rows: Row[] }>(docPath(entity), { filters: JSON.stringify(filters), fields, limit: 200, titles: true }).then((r) => r.rows);
 
-const day = (at: unknown) => (typeof at === "string" ? new Date(at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "");
+/** A moment's day on the workspace's clock, as members read times. */
+const day = (at: unknown) => (typeof at === "string" ? formatMoment(at, { day: "numeric", month: "short", year: "numeric" }) : "");
 
 export function Home() {
   useShellTitle("Intranet");

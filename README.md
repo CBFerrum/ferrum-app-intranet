@@ -52,6 +52,7 @@ Who sees what:
 
 | Version | Highlights |
 |---|---|
+| **0.1.6** | Rebuilt with Ferrum-Frontend a64416a: a box whose default is 1 shows ticked. |
 | **0.1.5** | Rebuilt with Ferrum-Frontend 922fcfb: action dialogs say every refusal and ask once. |
 | **0.1.4** | Rebuilt with Ferrum-Frontend a76295e: times on a person's own clock when they chose one. |
 | **0.1.3** | The news's days are the workspace's; rebuilt with Ferrum-Frontend 24c3951 (times on the workspace's clock). |

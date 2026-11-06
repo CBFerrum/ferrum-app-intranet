@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { feed, linkOk, owes, type Row } from "./feed";
+import { acknowledgedAt, feed, linkOk, owes, type Row } from "./feed";
 
 describe("the intranet's home", () => {
   it("shows pinned news first, then the newest", () => {
@@ -19,6 +19,11 @@ describe("the intranet's home", () => {
       false,
       false,
     ]);
+  });
+
+  it("says when the reader acknowledged", () => {
+    const a: Row = { id: "a", acknowledgements: [{ user_email: "Ana@acme.test", acknowledged_at: "2026-11-06T06:50:00Z" }] };
+    expect([acknowledgedAt(a, "ana@acme.test"), acknowledgedAt(a, "ben@acme.test"), acknowledgedAt(a, "")]).toEqual(["2026-11-06T06:50:00Z", undefined, undefined]);
   });
 
   it("shows links to the web or this workspace, never a script", () => {

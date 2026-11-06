@@ -8,7 +8,7 @@ import { Link } from "react-router";
 import { api, docPath } from "@ferrum/client";
 import { Badge, Button, ErrorState, Markdown, PageLoading, toast, useShellTitle } from "@ferrum/kit";
 import { useMe } from "@ferrum/records";
-import { feed, linkOk, owes, type Row } from "./feed";
+import { acknowledgedAt, feed, linkOk, owes, type Row } from "./feed";
 
 const list = (entity: string, filters: unknown[], fields: string) =>
   api.get<{ rows: Row[] }>(docPath(entity), { filters: JSON.stringify(filters), fields, limit: 200, titles: true }).then((r) => r.rows);
@@ -73,13 +73,15 @@ export function Home() {
               </header>
               <p className="faint">{day(a.published_at)}</p>
               <Markdown source={String(a.body ?? "")} />
-              {owes(a, email) && (
+              {owes(a, email) ? (
                 <div>
                   <Button size="sm" disabled={busy === a.id} onClick={() => void acknowledge(a)}>
                     Acknowledge
                   </Button>
                 </div>
-              )}
+              ) : acknowledgedAt(a, email) ? (
+                <p className="faint">You acknowledged it on {day(acknowledgedAt(a, email))}.</p>
+              ) : null}
             </article>
           ))}
         </section>

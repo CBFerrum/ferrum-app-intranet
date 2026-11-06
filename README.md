@@ -52,6 +52,7 @@ Who sees what:
 
 | Version | Highlights |
 |---|---|
+| **0.1.4** | Rebuilt with Ferrum-Frontend a76295e: times on a person's own clock when they chose one. |
 | **0.1.3** | The news's days are the workspace's; rebuilt with Ferrum-Frontend 24c3951 (times on the workspace's clock). |
 | **0.1.2** | From a browser walk: a published announcement's kept fields show read-only, archiving asks first, and the news says when you acknowledged. |
 | **0.1.1** | Rebuilt with Ferrum-Frontend bb60115: empty numbers read as the server reads them; settings open as their record. |

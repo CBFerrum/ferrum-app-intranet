@@ -52,6 +52,7 @@ Who sees what:
 
 | Version | Highlights |
 |---|---|
+| **0.1.1** | Rebuilt with Ferrum-Frontend bb60115: empty numbers read as the server reads them; settings open as their record. |
 | **0.1.0** | Team spaces with their pages and links, and announcements to everyone or a team, acknowledged where asked. |
 
 ## Develop

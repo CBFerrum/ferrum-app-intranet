@@ -1,6 +1,6 @@
 id: intranet
 name: Intranet
-version: 0.1.10
+version: 0.1.11
 publisher: cbferrum
 summary: "Spaces for teams with their pages and links, and announcements to everyone or a space's members, acknowledged where asked"
 description: README.md
@@ -28,3 +28,15 @@ contributes:
     - {id: intranet, package: intranet, path: "intranet/e/{entity}/{id}", list: "intranet/e/{entity}"}
   shell.create:
     - {id: announcement, label: Announcement, path: intranet/e/Announcement/new, entity: Announcement}
+  # What the assistant should know in Intranet's pages, and what it suggests asking there.
+  shell.assistant:
+    - id: intranet
+      title: "Intranet"
+      instructions: >-
+        An IntranetSpace is a team's space with its pages and links, seen by its members (SpaceMember). An
+        Announcement is Draft, Published or Archived, sent to everyone or to a space's members; AnnouncementAck
+        records who acknowledged one that asks for it.
+      suggestions:
+        - "What was announced this week?"
+        - "Which announcements have I not acknowledged?"
+        - "Who has not acknowledged an announcement yet?"

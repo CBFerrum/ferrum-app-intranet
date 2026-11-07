@@ -5,7 +5,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "react-router";
-import { api, docPath, formatMoment, t } from "@ferrum/client";
+import { api, docPath, formatMoment, t, isolate } from "@ferrum/client";
 import { Badge, Button, ErrorState, Markdown, PageLoading, toast, useShellTitle } from "@ferrum/kit";
 import { useMe } from "@ferrum/records";
 import { acknowledgedAt, feed, linkOk, owes, type Row } from "./feed";
@@ -17,7 +17,7 @@ const list = (entity: string, filters: unknown[], fields: string) =>
 const day = (at: unknown) => (typeof at === "string" ? formatMoment(at, { day: "numeric", month: "short", year: "numeric" }) : "");
 
 export function Home() {
-  useShellTitle("Intranet");
+  useShellTitle(t("Intranet"));
   const qc = useQueryClient();
   const email = useMe().data?.user.email ?? "";
   const [busy, setBusy] = useState<string | null>(null);
@@ -46,7 +46,7 @@ export function Home() {
       toast(t("Acknowledged."));
       await qc.invalidateQueries({ queryKey: ["intranet", "home"] });
     } catch (e) {
-      toast(e instanceof Error ? e.message : "That did not work.", "error");
+      toast(e instanceof Error ? e.message : t("That did not work."), "error");
     } finally {
       setBusy(null);
     }
@@ -66,13 +66,13 @@ export function Home() {
           {q.data.news.map((a) => (
             <article key={a.id} className="card card-pad stack" aria-label={String(a.title)}>
               <header className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-                <h4 className="font-semibold">{String(a.title)}</h4>
+                <h4 className="font-semibold">{isolate(String(a.title))}</h4>
                 <span className="row" style={{ gap: 6 }}>
                   {a.pinned ? <Badge tone="blue">{t("Pinned")}</Badge> : null}
-                  {a.space ? <Badge tone="neutral">{titles(a).space ?? "A space"}</Badge> : null}
+                  {a.space ? <Badge tone="neutral">{titles(a).space ?? t("A space")}</Badge> : null}
                 </span>
               </header>
-              <p className="faint">{day(a.published_at)}</p>
+              <p className="faint">{isolate(day(a.published_at))}</p>
               <Markdown source={String(a.body ?? "")} />
               {owes(a, email) ? (
                 <div>
@@ -81,7 +81,7 @@ export function Home() {
                   </Button>
                 </div>
               ) : acknowledgedAt(a, email) ? (
-                <p className="faint">{t("You acknowledged it on")} {day(acknowledgedAt(a, email))}.</p>
+                <p className="faint">{t("You acknowledged it on")} {isolate(day(acknowledgedAt(a, email)))}.</p>
               ) : null}
             </article>
           ))}
@@ -92,9 +92,9 @@ export function Home() {
           {q.data.spaces.map((s) => (
             <section key={s.id} className="card card-pad stack" aria-label={String(s.space_name)}>
               <h4 className="font-semibold">
-                <Link to={`/e/IntranetSpace/${s.id}`}>{String(s.space_name)}</Link> {s.visibility === "Members" ? <Badge tone="neutral">{t("Members")}</Badge> : null}
+                <Link to={`/e/IntranetSpace/${s.id}`}>{isolate(String(s.space_name))}</Link> {s.visibility === "Members" ? <Badge tone="neutral">{t("Members")}</Badge> : null}
               </h4>
-              {s.description ? <p>{String(s.description)}</p> : null}
+              {s.description ? <p>{isolate(String(s.description))}</p> : null}
               <ul className="stack">
                 {typeof s.pages_folder === "string" && s.pages_folder && (
                   <li>
@@ -106,7 +106,7 @@ export function Home() {
                   .map((l) => (
                     <li key={l.url}>
                       <a href={l.url} rel="noopener noreferrer" target={l.url?.startsWith("/") ? undefined : "_blank"}>
-                        {l.label}
+                        {isolate(l.label ?? "")}
                       </a>
                     </li>
                   ))}

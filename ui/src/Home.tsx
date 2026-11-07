@@ -5,7 +5,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "react-router";
-import { api, docPath, formatMoment } from "@ferrum/client";
+import { api, docPath, formatMoment, t } from "@ferrum/client";
 import { Badge, Button, ErrorState, Markdown, PageLoading, toast, useShellTitle } from "@ferrum/kit";
 import { useMe } from "@ferrum/records";
 import { acknowledgedAt, feed, linkOk, owes, type Row } from "./feed";
@@ -43,7 +43,7 @@ export function Home() {
     setBusy(a.id);
     try {
       await api.post(docPath("Announcement", a.id, "actions", "acknowledge"), {});
-      toast("Acknowledged.");
+      toast(t("Acknowledged."));
       await qc.invalidateQueries({ queryKey: ["intranet", "home"] });
     } catch (e) {
       toast(e instanceof Error ? e.message : "That did not work.", "error");
@@ -56,19 +56,19 @@ export function Home() {
   return (
     <div className="np-page">
       <header className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-        <h2>Intranet</h2>
-        <Link to="/e/Announcement">All announcements</Link>
+        <h2>{t("Intranet")}</h2>
+        <Link to="/e/Announcement">{t("All announcements")}</Link>
       </header>
       <div className="np-columns in-columns">
         <section className="stack" aria-labelledby="in-news">
-          <h3 id="in-news">News</h3>
-          {q.data.news.length === 0 && <p className="faint">Nothing new.</p>}
+          <h3 id="in-news">{t("News")}</h3>
+          {q.data.news.length === 0 && <p className="faint">{t("Nothing new.")}</p>}
           {q.data.news.map((a) => (
             <article key={a.id} className="card card-pad stack" aria-label={String(a.title)}>
               <header className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
                 <h4 className="font-semibold">{String(a.title)}</h4>
                 <span className="row" style={{ gap: 6 }}>
-                  {a.pinned ? <Badge tone="blue">Pinned</Badge> : null}
+                  {a.pinned ? <Badge tone="blue">{t("Pinned")}</Badge> : null}
                   {a.space ? <Badge tone="neutral">{titles(a).space ?? "A space"}</Badge> : null}
                 </span>
               </header>
@@ -77,28 +77,28 @@ export function Home() {
               {owes(a, email) ? (
                 <div>
                   <Button size="sm" disabled={busy === a.id} onClick={() => void acknowledge(a)}>
-                    Acknowledge
+                    {t("Acknowledge")}
                   </Button>
                 </div>
               ) : acknowledgedAt(a, email) ? (
-                <p className="faint">You acknowledged it on {day(acknowledgedAt(a, email))}.</p>
+                <p className="faint">{t("You acknowledged it on")} {day(acknowledgedAt(a, email))}.</p>
               ) : null}
             </article>
           ))}
         </section>
         <section className="stack" aria-labelledby="in-spaces">
-          <h3 id="in-spaces">Spaces</h3>
-          {q.data.spaces.length === 0 && <p className="faint">No spaces yet.</p>}
+          <h3 id="in-spaces">{t("Spaces")}</h3>
+          {q.data.spaces.length === 0 && <p className="faint">{t("No spaces yet.")}</p>}
           {q.data.spaces.map((s) => (
             <section key={s.id} className="card card-pad stack" aria-label={String(s.space_name)}>
               <h4 className="font-semibold">
-                <Link to={`/e/IntranetSpace/${s.id}`}>{String(s.space_name)}</Link> {s.visibility === "Members" ? <Badge tone="neutral">Members</Badge> : null}
+                <Link to={`/e/IntranetSpace/${s.id}`}>{String(s.space_name)}</Link> {s.visibility === "Members" ? <Badge tone="neutral">{t("Members")}</Badge> : null}
               </h4>
               {s.description ? <p>{String(s.description)}</p> : null}
               <ul className="stack">
                 {typeof s.pages_folder === "string" && s.pages_folder && (
                   <li>
-                    <a href={`/drive/${encodeURIComponent(s.pages_folder)}`}>Pages</a>
+                    <a href={`/drive/${encodeURIComponent(s.pages_folder)}`}>{t("Pages")}</a>
                   </li>
                 )}
                 {(Array.isArray(s.links) ? (s.links as { label?: string; url?: string }[]) : [])

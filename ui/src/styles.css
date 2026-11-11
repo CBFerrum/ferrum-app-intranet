@@ -3,8 +3,3 @@
 @import "../../../ferrum/web/src/index.css";
 @source "../../../ferrum/web/src";
 @source ".";
-
-/* Spaces are a narrow side column: one tile to a row. */
-.in-spaces {
-  grid-template-columns: minmax(0, 1fr);
-}

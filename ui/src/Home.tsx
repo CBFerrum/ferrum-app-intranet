@@ -4,9 +4,8 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Link } from "react-router";
 import { api, docPath, formatMoment, t, isolate } from "@ferrum/client";
-import { Badge, Button, ErrorState, Markdown, PageLoading, toast, useShellTitle } from "@ferrum/kit";
+import { Badge, Button, ButtonLink, HomeSection, HomeSkeleton, LoadFailed, Markdown, PageHead, PageSplit, PageStack, Queue, QueueGrid, QueueItem, toast, useShellTitle } from "@ferrum/kit";
 import { useMe } from "@ferrum/records";
 import { acknowledgedAt, feed, linkOk, owes, type Row } from "./feed";
 
@@ -36,8 +35,14 @@ export function Home() {
     },
     refetchInterval: 60_000,
   });
-  if (q.isPending) return <PageLoading />;
-  if (q.isError) return <ErrorState error={q.error} onRetry={() => void q.refetch()} />;
+  const head = (
+    <PageHead
+      title={t("Intranet")}
+      actions={<ButtonLink to="/e/Announcement">{t("All announcements")}</ButtonLink>}
+    />
+  );
+  if (q.isPending) return <PageStack>{head}<HomeSkeleton queues={2} /></PageStack>;
+  if (q.isError) return <PageStack>{head}<LoadFailed error={q.error} onRetry={() => void q.refetch()} /></PageStack>;
 
   const acknowledge = async (a: Row) => {
     setBusy(a.id);
@@ -54,25 +59,22 @@ export function Home() {
   const titles = (r: Row) => (r._titles as Record<string, string> | undefined) ?? {};
 
   return (
-    <div className="np-page">
-      <header className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-        <h2>{t("Intranet")}</h2>
-        <Link to="/e/Announcement">{t("All announcements")}</Link>
-      </header>
-      <div className="np-columns in-columns">
-        <section className="stack" aria-labelledby="in-news">
-          <h3 id="in-news">{t("News")}</h3>
-          {q.data.news.length === 0 && <p className="faint">{t("Nothing new.")}</p>}
+    <PageStack>
+      {head}
+      <PageSplit
+        main={
+        <HomeSection title={t("News")} empty={t("Nothing new.")}>
+          <div className="flex flex-col gap-3">
           {q.data.news.map((a) => (
-            <article key={a.id} className="card card-pad stack" aria-label={String(a.title)}>
-              <header className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-                <h4 className="font-semibold">{isolate(String(a.title))}</h4>
-                <span className="row" style={{ gap: 6 }}>
+            <article key={a.id} className="card card-pad grid gap-2" aria-label={String(a.title)}>
+              <header className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+                <h3 className="text-base font-semibold">{isolate(String(a.title))}</h3>
+                <span className="flex flex-wrap items-center gap-1.5">
                   {a.pinned ? <Badge tone="blue">{t("Pinned")}</Badge> : null}
                   {a.space ? <Badge tone="neutral">{titles(a).space ?? t("A space")}</Badge> : null}
                 </span>
               </header>
-              <p className="faint">{isolate(day(a.published_at))}</p>
+              <p className="text-xs text-muted-foreground">{isolate(day(a.published_at))}</p>
               <Markdown source={String(a.body ?? "")} />
               {owes(a, email) ? (
                 <div>
@@ -81,40 +83,45 @@ export function Home() {
                   </Button>
                 </div>
               ) : acknowledgedAt(a, email) ? (
-                <p className="faint">{t("You acknowledged it on")} {isolate(day(acknowledgedAt(a, email)))}.</p>
+                <p className="text-xs text-muted-foreground">{t("You acknowledged it on")} {isolate(day(acknowledgedAt(a, email)))}.</p>
               ) : null}
             </article>
           ))}
-        </section>
-        <section className="stack" aria-labelledby="in-spaces">
-          <h3 id="in-spaces">{t("Spaces")}</h3>
-          {q.data.spaces.length === 0 && <p className="faint">{t("No spaces yet.")}</p>}
-          {q.data.spaces.map((s) => (
-            <section key={s.id} className="card card-pad stack" aria-label={String(s.space_name)}>
-              <h4 className="font-semibold">
-                <Link to={`/e/IntranetSpace/${s.id}`}>{isolate(String(s.space_name))}</Link> {s.visibility === "Members" ? <Badge tone="neutral">{t("Members")}</Badge> : null}
-              </h4>
-              {s.description ? <p>{isolate(String(s.description))}</p> : null}
-              <ul className="stack">
-                {typeof s.pages_folder === "string" && s.pages_folder && (
-                  <li>
-                    <a href={`/drive/${encodeURIComponent(s.pages_folder)}`}>{t("Pages")}</a>
-                  </li>
-                )}
-                {(Array.isArray(s.links) ? (s.links as { label?: string; url?: string }[]) : [])
-                  .filter((l) => linkOk(l.url ?? ""))
-                  .map((l) => (
-                    <li key={l.url}>
-                      <a href={l.url} rel="noopener noreferrer" target={l.url?.startsWith("/") ? undefined : "_blank"}>
-                        {isolate(l.label ?? "")}
-                      </a>
-                    </li>
-                  ))}
-              </ul>
-            </section>
-          ))}
-        </section>
-      </div>
-    </div>
+          </div>
+        </HomeSection>
+        }
+        aside={
+        <QueueGrid columns={1}>
+          <Queue title={t("Spaces")} count={q.data.spaces.length} empty={t("No spaces yet.")}>
+            {q.data.spaces.map((s) => {
+              const links = (Array.isArray(s.links) ? (s.links as { label?: string; url?: string }[]) : []).filter((l) => linkOk(l.url ?? ""));
+              const pages = typeof s.pages_folder === "string" && s.pages_folder;
+              return (
+                <QueueItem
+                  key={s.id}
+                  to={`/e/IntranetSpace/${s.id}`}
+                  title={isolate(String(s.space_name))}
+                  meta={s.description ? String(s.description) : undefined}
+                  trailing={s.visibility === "Members" ? <Badge tone="neutral">{t("Members")}</Badge> : undefined}
+                  action={
+                    pages || links.length > 0 ? (
+                      <span className="flex flex-wrap justify-end gap-1">
+                        {pages && <ButtonLink href={`/drive/${encodeURIComponent(String(s.pages_folder))}`}>{t("Pages")}</ButtonLink>}
+                        {links.map((l) => (
+                          <ButtonLink key={l.url} href={l.url ?? ""} target={l.url?.startsWith("/") ? undefined : "_blank"}>
+                            {isolate(l.label ?? "")}
+                          </ButtonLink>
+                        ))}
+                      </span>
+                    ) : undefined
+                  }
+                />
+              );
+            })}
+          </Queue>
+        </QueueGrid>
+        }
+      />
+    </PageStack>
   );
 }

@@ -4,9 +4,9 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Link } from "react-router";
-import { ApiError, api, docPath, formatMoment, t, isolate } from "@ferrum/client";
-import { Badge, Button, ListSkeleton, Markdown, StatePanel, toast, useShellTitle } from "@ferrum/kit";
+import { Newspaper } from "lucide-react";
+import { api, docPath, formatMoment, t, isolate } from "@ferrum/client";
+import { Badge, Button, ButtonLink, HomeSkeleton, LoadFailed, Markdown, PageHead, StatePanel, Tile, TileGrid, toast, useShellTitle } from "@ferrum/kit";
 import { useMe } from "@ferrum/records";
 import { acknowledgedAt, feed, linkOk, owes, type Row } from "./feed";
 
@@ -36,12 +36,14 @@ export function Home() {
     },
     refetchInterval: 60_000,
   });
-  if (q.isPending) return <ListSkeleton />;
-  if (q.isError) {
-    // A refused read (403) is not shown as an error, no connection (0) is offline.
-    const status = q.error instanceof ApiError ? q.error.status : -1;
-    return <StatePanel kind={status === 403 ? "denied" : status === 0 ? "offline" : "failed"} error={q.error} onRetry={() => void q.refetch()} />;
-  }
+  const head = (
+    <PageHead
+      title={t("Intranet")}
+      actions={<ButtonLink to="/e/Announcement">{t("All announcements")}</ButtonLink>}
+    />
+  );
+  if (q.isPending) return <>{head}<HomeSkeleton queues={2} /></>;
+  if (q.isError) return <>{head}<LoadFailed error={q.error} onRetry={() => void q.refetch()} /></>;
 
   const acknowledge = async (a: Row) => {
     setBusy(a.id);
@@ -58,25 +60,24 @@ export function Home() {
   const titles = (r: Row) => (r._titles as Record<string, string> | undefined) ?? {};
 
   return (
-    <div className="np-page">
-      <header className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-        <h2>{t("Intranet")}</h2>
-        <Link to="/e/Announcement">{t("All announcements")}</Link>
-      </header>
-      <div className="np-columns in-columns">
-        <section className="stack" aria-labelledby="in-news">
-          <h3 id="in-news">{t("News")}</h3>
-          {q.data.news.length === 0 && <p className="faint">{t("Nothing new.")}</p>}
+    <>
+      {head}
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-start">
+        <section className="grid gap-3" aria-labelledby="in-news">
+          <h2 id="in-news" className="text-base font-semibold">
+            {t("News")}
+          </h2>
+          {q.data.news.length === 0 && <StatePanel kind="empty" icon={Newspaper} title={t("Nothing new.")} />}
           {q.data.news.map((a) => (
-            <article key={a.id} className="card card-pad stack" aria-label={String(a.title)}>
-              <header className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-                <h4 className="font-semibold">{isolate(String(a.title))}</h4>
-                <span className="row" style={{ gap: 6 }}>
+            <article key={a.id} className="card card-pad grid gap-2" aria-label={String(a.title)}>
+              <header className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+                <h3 className="text-base font-semibold">{isolate(String(a.title))}</h3>
+                <span className="flex flex-wrap items-center gap-1.5">
                   {a.pinned ? <Badge tone="blue">{t("Pinned")}</Badge> : null}
                   {a.space ? <Badge tone="neutral">{titles(a).space ?? t("A space")}</Badge> : null}
                 </span>
               </header>
-              <p className="faint">{isolate(day(a.published_at))}</p>
+              <p className="text-xs text-muted-foreground">{isolate(day(a.published_at))}</p>
               <Markdown source={String(a.body ?? "")} />
               {owes(a, email) ? (
                 <div>
@@ -85,40 +86,51 @@ export function Home() {
                   </Button>
                 </div>
               ) : acknowledgedAt(a, email) ? (
-                <p className="faint">{t("You acknowledged it on")} {isolate(day(acknowledgedAt(a, email)))}.</p>
+                <p className="text-xs text-muted-foreground">{t("You acknowledged it on")} {isolate(day(acknowledgedAt(a, email)))}.</p>
               ) : null}
             </article>
           ))}
         </section>
-        <section className="stack" aria-labelledby="in-spaces">
-          <h3 id="in-spaces">{t("Spaces")}</h3>
-          {q.data.spaces.length === 0 && <p className="faint">{t("No spaces yet.")}</p>}
-          {q.data.spaces.map((s) => (
-            <section key={s.id} className="card card-pad stack" aria-label={String(s.space_name)}>
-              <h4 className="font-semibold">
-                <Link to={`/e/IntranetSpace/${s.id}`}>{isolate(String(s.space_name))}</Link> {s.visibility === "Members" ? <Badge tone="neutral">{t("Members")}</Badge> : null}
-              </h4>
-              {s.description ? <p>{isolate(String(s.description))}</p> : null}
-              <ul className="stack">
-                {typeof s.pages_folder === "string" && s.pages_folder && (
-                  <li>
-                    <a href={`/drive/${encodeURIComponent(s.pages_folder)}`}>{t("Pages")}</a>
-                  </li>
-                )}
-                {(Array.isArray(s.links) ? (s.links as { label?: string; url?: string }[]) : [])
-                  .filter((l) => linkOk(l.url ?? ""))
-                  .map((l) => (
-                    <li key={l.url}>
-                      <a href={l.url} rel="noopener noreferrer" target={l.url?.startsWith("/") ? undefined : "_blank"}>
-                        {isolate(l.label ?? "")}
-                      </a>
-                    </li>
-                  ))}
-              </ul>
-            </section>
-          ))}
+        <section className="grid gap-3" aria-labelledby="in-spaces">
+          <h2 id="in-spaces" className="text-base font-semibold">
+            {t("Spaces")}
+          </h2>
+          {q.data.spaces.length === 0 && <p className="text-sm text-muted-foreground">{t("No spaces yet.")}</p>}
+          <TileGrid className="in-spaces" label={t("Spaces")}>
+            {q.data.spaces.map((s) => {
+              const links = (Array.isArray(s.links) ? (s.links as { label?: string; url?: string }[]) : []).filter((l) => linkOk(l.url ?? ""));
+              const pages = typeof s.pages_folder === "string" && s.pages_folder;
+              return (
+                <Tile
+                  key={s.id}
+                  to={`/e/IntranetSpace/${s.id}`}
+                  title={isolate(String(s.space_name))}
+                  meta={
+                    <>
+                      {s.description ? <span className="whitespace-normal">{isolate(String(s.description))}</span> : null}
+                      {(pages || links.length > 0) && (
+                        <span className="mt-1 flex flex-wrap gap-x-3 gap-y-1 whitespace-normal">
+                          {pages && (
+                            <a className="relative z-10" href={`/drive/${encodeURIComponent(String(s.pages_folder))}`}>
+                              {t("Pages")}
+                            </a>
+                          )}
+                          {links.map((l) => (
+                            <a key={l.url} className="relative z-10" href={l.url} rel="noopener noreferrer" target={l.url?.startsWith("/") ? undefined : "_blank"}>
+                              {isolate(l.label ?? "")}
+                            </a>
+                          ))}
+                        </span>
+                      )}
+                    </>
+                  }
+                  status={s.visibility === "Members" ? <Badge tone="neutral">{t("Members")}</Badge> : undefined}
+                />
+              );
+            })}
+          </TileGrid>
         </section>
       </div>
-    </div>
+    </>
   );
 }

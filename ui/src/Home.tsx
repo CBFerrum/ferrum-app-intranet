@@ -5,7 +5,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { api, docPath, formatMoment, t, isolate } from "@ferrum/client";
-import { Badge, Button, ButtonLink, HomeSection, HomeSkeleton, LoadFailed, Markdown, PageHead, PageStack, Queue, QueueGrid, QueueItem, toast, useShellTitle } from "@ferrum/kit";
+import { Badge, Button, ButtonLink, HomeSection, HomeSkeleton, LoadFailed, Markdown, PageHead, PageSplit, PageStack, Queue, QueueGrid, QueueItem, toast, useShellTitle } from "@ferrum/kit";
 import { useMe } from "@ferrum/records";
 import { acknowledgedAt, feed, linkOk, owes, type Row } from "./feed";
 
@@ -61,7 +61,8 @@ export function Home() {
   return (
     <PageStack>
       {head}
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] lg:items-start">
+      <PageSplit
+        main={
         <HomeSection title={t("News")} empty={t("Nothing new.")}>
           <div className="flex flex-col gap-3">
           {q.data.news.map((a) => (
@@ -88,6 +89,8 @@ export function Home() {
           ))}
           </div>
         </HomeSection>
+        }
+        aside={
         <QueueGrid columns={1}>
           <Queue title={t("Spaces")} count={q.data.spaces.length} empty={t("No spaces yet.")}>
             {q.data.spaces.map((s) => {
@@ -105,7 +108,7 @@ export function Home() {
                       <span className="flex flex-wrap justify-end gap-1">
                         {pages && <ButtonLink href={`/drive/${encodeURIComponent(String(s.pages_folder))}`}>{t("Pages")}</ButtonLink>}
                         {links.map((l) => (
-                          <ButtonLink key={l.url} href={l.url ?? ""}>
+                          <ButtonLink key={l.url} href={l.url ?? ""} target={l.url?.startsWith("/") ? undefined : "_blank"}>
                             {isolate(l.label ?? "")}
                           </ButtonLink>
                         ))}
@@ -117,7 +120,8 @@ export function Home() {
             })}
           </Queue>
         </QueueGrid>
-      </div>
+        }
+      />
     </PageStack>
   );
 }

@@ -5,8 +5,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "react-router";
-import { api, docPath, formatMoment, t, isolate } from "@ferrum/client";
-import { Badge, Button, ErrorState, Markdown, PageLoading, toast, useShellTitle } from "@ferrum/kit";
+import { ApiError, api, docPath, formatMoment, t, isolate } from "@ferrum/client";
+import { Badge, Button, ListSkeleton, Markdown, StatePanel, toast, useShellTitle } from "@ferrum/kit";
 import { useMe } from "@ferrum/records";
 import { acknowledgedAt, feed, linkOk, owes, type Row } from "./feed";
 
@@ -36,8 +36,12 @@ export function Home() {
     },
     refetchInterval: 60_000,
   });
-  if (q.isPending) return <PageLoading />;
-  if (q.isError) return <ErrorState error={q.error} onRetry={() => void q.refetch()} />;
+  if (q.isPending) return <ListSkeleton />;
+  if (q.isError) {
+    // A refused read (403) is not shown as an error, no connection (0) is offline.
+    const status = q.error instanceof ApiError ? q.error.status : -1;
+    return <StatePanel kind={status === 403 ? "denied" : status === 0 ? "offline" : "failed"} error={q.error} onRetry={() => void q.refetch()} />;
+  }
 
   const acknowledge = async (a: Row) => {
     setBusy(a.id);

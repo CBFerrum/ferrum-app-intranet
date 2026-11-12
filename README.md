@@ -52,6 +52,7 @@ Who sees what:
 
 | Version | Highlights |
 |---|---|
+| **0.1.14** | Rebuilt on the tuned design system: better menu icons, a lighter first page, a visible scroll cue, cleaner print. |
 | **0.1.13** | The redesigned interface: the upgraded design system, shaped loading, told-apart states. |
 | **0.1.12** | Its names in Arabic and Hindi. |
 | **0.1.11** | The assistant knows its records. |

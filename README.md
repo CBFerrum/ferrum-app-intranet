@@ -7,7 +7,7 @@
 
 <br>
 
-[![Version](https://img.shields.io/badge/version-0.1.14-7c3aed?style=flat-square)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.1.15-7c3aed?style=flat-square)](CHANGELOG.md)
 [![Licence: AGPL-3.0](https://img.shields.io/badge/licence-AGPL--3.0-blue?style=flat-square)](LICENSE)
 [![Ferrum platform](https://img.shields.io/badge/runs%20on-Ferrum-2f5bea?style=flat-square)](https://github.com/CBFerrum/Ferrum)
 ![Rust](https://img.shields.io/badge/Rust-server-b7410e?style=flat-square&logo=rust)
@@ -37,7 +37,7 @@ Intranet gives a company a news page and a place for each team. Editors post ann
 
 | | |
 |---|---|
-| 📦 Version | `0.1.14` |
+| 📦 Version | `0.1.15` |
 | 🧱 Kind | Own interface at `/intranet/` |
 | 🗃️ What it adds | 2 entities (Announcement, Space) and 4 child tables (Member, Link, Recipient, Acknowledgement) in the `intranet` package |
 | 👥 Roles | 2: Intranet Editor, Intranet Member |
@@ -248,6 +248,7 @@ Notes: 🟡 for Ferrum means a part is there: pages are Docs documents in a fold
 
 ### ✅ Recently shipped
 
+- [x] **0.1.15** Rebuilt on Ferrum-Frontend 06bd1a2 (its start kept, no routes to screens apps no longer have); a published announcement's fixed fields refuse a change with a message again.
 - [x] **0.1.14** Rebuilt on the tuned design system: better menu icons, a lighter first page, a visible scroll cue, cleaner print.
 - [x] **0.1.13** The redesigned interface: shaped loading, told-apart states.
 - [x] **0.1.12** Names in Arabic and Hindi.

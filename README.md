@@ -29,7 +29,7 @@ Intranet gives a company a news page and a place for each team. Editors post ann
 - ✅ **Acknowledgements that count.** An announcement can ask each reader to acknowledge it once. The reader's name and the time are kept on it.
 - 🎯 **Right audience.** News goes to everyone, or only to the owner and members of a members-only space, and only they can read it.
 - 🗂️ **Spaces with their own pages.** A space's pages are Ferrum Docs documents in a Drive folder, so they have the editor, history and sharing of Docs.
-- 🧩 **One data set.** People are the workspace's people, and HR's employees are the directory. Nothing is copied into a separate system.
+- 🧩 **One data set.** People are the workspace's people. Nothing is copied into a separate system.
 - 🔓 **Open source and self-hosted.** AGPL, on your servers, with your data.
 - 🌍 **Arabic, Hindi and English,** with right-to-left mirroring.
 
@@ -44,7 +44,7 @@ Intranet gives a company a news page and a place for each team. Editors post ann
 | 📊 Reports and print formats | none of its own |
 | ⏱️ Upkeep | archives expired announcements |
 | 🔗 Depends on | Ferrum `>=0.3.2, <0.4` |
-| 🤝 Works with | Docs and Drive (a space's pages), HR (the directory), Ferrum notifications |
+| 🤝 Works with | Docs and Drive (a space's pages), Ferrum notifications |
 | 🌍 Languages | English, Arabic and Hindi (translated by a model, to be reviewed by native speakers) |
 | 🧪 Tests | 3 Rust tests (one against a real PostgreSQL), 4 interface tests |
 | 📄 Licence | AGPL-3.0-only |
@@ -156,10 +156,9 @@ flowchart TD
     SP --> FD["Drive folder"]
     FD --> DOC["Docs documents: the space's pages"]
     SP -. "members-only: audience of its news" .-> AN["Announcements"]
-    HR["HR employees"] -. "the directory" .-> SP
 ```
 
-A space holds people, links and a Drive folder. The pages themselves are Docs documents, and the directory of people is HR's.
+A space holds people, links and a Drive folder. The pages themselves are Docs documents.
 
 ## 🧱 Data model
 
@@ -184,14 +183,13 @@ A space holds people, links and a Drive folder. The pages themselves are Docs do
 
 ### Roles, reports and upkeep
 
-Roles are in [Who sees what](#-features). The app has no reports or print formats of its own. One upkeep job archives announcements the day after they expire.
+Roles are in [Who sees what](#-who-sees-what). The app has no reports or print formats of its own. One upkeep job archives announcements the day after they expire.
 
 ## 🔌 Integrations
 
 | With | How | Needs |
 |---|---|---|
 | Docs and Drive | A space's pages are Docs documents in its Drive folder; the home page links to `/drive/{folder}` | Drive and Docs installed |
-| HR | Its employees are the directory; the intranet has no directory of its own | HR installed |
 | Ferrum notifications | In-app notices when an announcement is published | Nothing extra |
 | Ferrum's assistant and MCP | The records are available to AI agents under each person's rights | Nothing extra |
 
@@ -213,7 +211,7 @@ The leaders are employee-communication platforms: Microsoft SharePoint with Viva
 | Rich editor with images and video | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Comments and reactions | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Social feed and communities | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Employee directory | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Employee directory | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Email newsletters and digests | ❌ | 🟡 | ✅ | 🟡 | ✅ | ✅ |
 | Scheduled publishing | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Content analytics | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
@@ -221,17 +219,17 @@ The leaders are employee-communication platforms: Microsoft SharePoint with Viva
 | Search across content | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Translation of content | ❌ | 🟡 | ✅ | 🟡 | 🟡 | ✅ |
 | Integrates with the suite you already have | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Same data as HR, documents and the rest of the business | ✅ | 🟡 | ❌ | ❌ | ❌ | ❌ |
+| Same people and documents as the rest of the business | ✅ | 🟡 | ❌ | ❌ | ❌ | ❌ |
 | Open source | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Self-hosted | ✅ | 🟡 | ❌ | ❌ | ❌ | ❌ |
 
-Notes: 🟡 for Ferrum means a part is there: pages are Docs documents in a folder, not a page builder; the body is Markdown; the directory is HR's employees; search is the platform's search of records; mobile is the responsive web app with in-app notices; integrations are with other Ferrum apps. 🟡 for SharePoint's self-hosting means its server edition on your own machines.
+Notes: 🟡 for Ferrum means a part is there: pages are Docs documents in a folder, not a page builder; the body is Markdown; search is the platform's search of records; mobile is the responsive web app with in-app notices; integrations are with other Ferrum apps. 🟡 for SharePoint's self-hosting means its server edition on your own machines.
 
 ### 🏆 Where Intranet stands out
 
 - ✅ **Acknowledgement is built in** and kept on the announcement with the time.
 - 🔒 **Immutable posts.** What was posted cannot be quietly changed.
-- 🧩 **No separate silo.** One workspace, one set of people, HR and Docs in reach.
+- 🧩 **No separate silo.** One workspace, one set of people, Docs in reach.
 - 🔓 **Open source and self-hosted.**
 
 ### 🚧 Where the leaders are still ahead
@@ -248,7 +246,7 @@ Notes: 🟡 for Ferrum means a part is there: pages are Docs documents in a fold
 
 ### ✅ Recently shipped
 
-- [x] **0.1.15** Rebuilt on Ferrum-Frontend 06bd1a2 (its start kept, no routes to screens apps no longer have); a published announcement's fixed fields refuse a change with a message again.
+- [x] **0.1.15** Rebuilt on Ferrum-Frontend 06bd1a2 (its start kept); a published announcement's fixed fields refuse a change with a message again.
 - [x] **0.1.14** Rebuilt on the tuned design system: better menu icons, a lighter first page, a visible scroll cue, cleaner print.
 - [x] **0.1.13** The redesigned interface: shaped loading, told-apart states.
 - [x] **0.1.12** Names in Arabic and Hindi.
@@ -269,7 +267,7 @@ Notes: 🟡 for Ferrum means a part is there: pages are Docs documents in a fold
 
 - [ ] Email digests and newsletters.
 - [ ] Reach analytics for news.
-- [ ] A people directory view, over HR's employees.
+- [ ] A people directory view.
 - [ ] Late joiners see earlier news of a space (today only those who were members at publishing time are recipients).
 - [ ] A page tree and templates for a space's pages.
 - [ ] Translation of announcements.
@@ -278,7 +276,7 @@ Notes: 🟡 for Ferrum means a part is there: pages are Docs documents in a fold
 
 ## 🚀 Install
 
-It is compiled into the Ferrum server. A workspace administrator adds **Intranet** from **Apps** (`/store/`). Pages in spaces use **Docs** and **Drive**, and the directory is **HR**; install those to use them.
+It is compiled into the Ferrum server. A workspace administrator adds **Intranet** from **Apps** (`/store/`). Pages in spaces use **Docs** and **Drive**; install those to use them.
 
 First steps:
 
@@ -288,7 +286,7 @@ First steps:
 
 Limits to know:
 - A members-only space's announcement goes to its members as they are when it is published; people who join later do not see earlier news.
-- There is no people directory here: HR's employees are the directory.
+- There is no people directory here.
 
 ## 🔧 Develop
 

@@ -170,7 +170,7 @@ async fn scenario() {
     assert_eq!(t.seen(&ana).await, ["Office closed Friday"], "archived news leaves the feed");
     let today = chrono::Utc::now().date_naive();
     t.k.update(&editor, "Announcement", all, obj(json!({"expires_on": (today - Duration::days(1)).to_string()})), None).await.expect("expires");
-    ferrum_app_intranet::maintenance(&k).await.expect("upkeep");
+    ferrum_app_intranet::maintenance(&k, t.tenant).await.expect("upkeep");
     assert_eq!(t.get("Announcement", all).await["status"], "Archived");
     assert!(t.seen(&ben).await.is_empty());
 }

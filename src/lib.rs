@@ -15,7 +15,7 @@ mod announcements;
 mod spaces;
 
 use ferrum_domain::reports::ReportSource;
-use ferrum_kernel::{Ctx, Error, HookRegistry, Kernel, Result};
+use ferrum_kernel::{Ctx, HookRegistry, Kernel, Result};
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -40,29 +40,15 @@ pub fn reports() -> Vec<Arc<dyn ReportSource>> {
     vec![]
 }
 
-/// Upkeep: announcements past the day they expire are archived.
-pub async fn maintenance(k: &Kernel) -> Result<()> {
-    let mut tx = k.db.system_tx().await?;
-    let tenants: Vec<Uuid> = sqlx::query_scalar("select id from tenant where status = 'active' order by id").fetch_all(&mut *tx).await?;
+/// One workspace's upkeep, which the platform runs about once a minute where Intranet is installed, on whichever replica
+/// is free, and may run again: announcements past the day they expire are archived.
+pub async fn maintenance(k: &Kernel, tenant: Uuid) -> Result<()> {
+    let schema = k.registry.schema(tenant).await?;
+    let ctx = Ctx::system(tenant, schema);
+    let mut tx = k.db.tenant_tx(tenant).await?;
+    announcements::archive_expired(k, &ctx, &mut tx).await?;
     tx.commit().await?;
-    let mut first_error: Option<Error> = None;
-    for tenant in tenants {
-        let run = async {
-            let schema = k.registry.schema(tenant).await?;
-            if !schema.packages.iter().any(|p| p == "intranet") {
-                return Ok(());
-            }
-            let ctx = Ctx::system(tenant, schema);
-            let mut tx = k.db.tenant_tx(tenant).await?;
-            announcements::archive_expired(k, &ctx, &mut tx).await?;
-            tx.commit().await?;
-            Ok::<(), Error>(())
-        };
-        if let Err(e) = run.await {
-            first_error.get_or_insert(e);
-        }
-    }
-    first_error.map_or(Ok(()), Err)
+    Ok(())
 }
 
 #[cfg(test)]
